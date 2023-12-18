@@ -7,13 +7,14 @@ namespace Developing
     public partial class Staff : Form
     {
 
-
+        string mode = "";
         string selectedRowId = null;
         bool isEditMode = false;
 
-        public Staff()
+        public Staff(string mode)
         {
             InitializeComponent();
+            this.mode = mode;
             //CreateDataBase();
             //insertrecord();
             showrecords();
@@ -22,7 +23,7 @@ namespace Developing
         }
 
 
-        private void loadPositions()
+        public void loadPositions()
         {
             using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
             {
@@ -112,14 +113,23 @@ namespace Developing
         private void HideTextBoxes()
         {
 
-            textBox1.Visible = !textBox1.Visible;
-            textBox2.Visible = !textBox2.Visible;
-            textBox3.Visible = !textBox3.Visible;
-            comboBox1.Visible = !comboBox1.Visible;
-            label_position.Visible = !label_position.Visible;
-            namelabel.Visible = !namelabel.Visible;
-            secondnamelabel.Visible = !secondnamelabel.Visible;
-            thirdnamelabel.Visible = !thirdnamelabel.Visible;
+            //textBox1.Visible = !textBox1.Visible;
+            //textBox2.Visible = !textBox2.Visible;
+            //textBox3.Visible = !textBox3.Visible;
+            //comboBox1.Visible = !comboBox1.Visible;
+            //label_position.Visible = !label_position.Visible;
+            //namelabel.Visible = !namelabel.Visible;
+            //secondnamelabel.Visible = !secondnamelabel.Visible;
+            //thirdnamelabel.Visible = !thirdnamelabel.Visible;
+
+            searchTextBox.Visible = !searchTextBox.Visible;
+            searchbutton.Visible = !searchbutton.Visible;
+            resetbutton.Visible = !resetbutton.Visible;
+
+            //addbutton.Visible = !addbutton.Visible;
+            //editbutton.Visible = !editbutton.Visible;
+            //deletebutton.Visible = !deletebutton.Visible;
+            groupBox1.Visible = !groupBox1.Visible;
 
 
         }
@@ -129,13 +139,18 @@ namespace Developing
             textBox2.Text = "";
             textBox3.Text = "";
         }
+
+        private void ChangeVisibleAddingButtons()
+        {
+            addbutton.Enabled = !addbutton.Enabled;
+            editbutton.Enabled = !editbutton.Enabled;
+            deletebutton.Enabled = !deletebutton.Enabled;
+        }
         private void addbutton_Click(object sender, EventArgs e)
         {
             HideTextBoxes();
-            dataGridView1.Visible = false;
-            savebutton.Visible = true;
-            selectFromForm.Visible = true;
-            cancelbutton.Visible = true;
+            ChangeVisibleAddingButtons();
+
         }
 
         private void savebutton_Click(object sender, EventArgs e)
@@ -194,18 +209,10 @@ namespace Developing
 
                 }
 
-
-                label_position.Visible = false; // Скрытие блоков добавления/Редактирования
-
-                dataGridView1.Visible = true;
-                savebutton.Visible = false;
-
                 ClearTextBoxes();
                 HideTextBoxes();
-                dataGridView1.Visible = true;
-                savebutton.Visible = false;
-                selectFromForm.Visible = false;
-                cancelbutton.Visible = false;
+                ChangeVisibleAddingButtons();
+
                 showrecords();
             }
             else
@@ -254,10 +261,8 @@ namespace Developing
                     isEditMode = false;
                     ClearTextBoxes();
                     HideTextBoxes();
-                    dataGridView1.Visible = true;
-                    savebutton.Visible = false;
-                    selectFromForm.Visible = false;
-                    cancelbutton.Visible = false;
+                    ChangeVisibleAddingButtons();
+
                     showrecords();
 
                 }
@@ -317,12 +322,19 @@ namespace Developing
                 DialogResult dialogResult = MessageBox.Show("Вы точно хотите удалить выбранную запись?", "Удаление", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
+                    try
+                    {
+                        string query = $"DELETE from staff WHERE staff_id = {Int32.Parse(selectedRowId)}";
+                        SqlCommand command = new SqlCommand(query, connection);
+                        command.ExecuteNonQuery();
 
-                    string query = $"DELETE from staff WHERE staff_id = {Int32.Parse(selectedRowId)}";
-                    SqlCommand command = new SqlCommand(query, connection);
-                    command.ExecuteNonQuery();
+                        //dataGridView1.CurrentCell.Selected = false;
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Ошибка!\nДанная запись уже используется!");
 
-                    //dataGridView1.CurrentCell.Selected = false;
+                    }
                 }
                 else if (dialogResult == DialogResult.No)
                 {
@@ -374,10 +386,7 @@ namespace Developing
 
 
             HideTextBoxes();
-            dataGridView1.Visible = false;
-            savebutton.Visible = true;
-            selectFromForm.Visible = true;
-            cancelbutton.Visible = true;
+            ChangeVisibleAddingButtons();
 
             isEditMode = true;
 
@@ -409,12 +418,94 @@ namespace Developing
         private void cancelbutton_Click(object sender, EventArgs e)
         {
             HideTextBoxes();
-            ClearTextBoxes();
-            dataGridView1.Visible = true;
-            savebutton.Visible = false;
-            selectFromForm.Visible = false;
-            cancelbutton.Visible = false;
+            ChangeVisibleAddingButtons();
 
+            ClearTextBoxes();
+            if (isEditMode) { isEditMode = !isEditMode; }
+
+        }
+
+        private void dataGridView1_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (mode == "selection")
+            {
+                if (e.RowIndex < 0)
+                {
+                    return;
+                }
+
+                int index = e.RowIndex;
+                dataGridView1.Rows[index].Selected = true;
+
+                DataGridViewSelectedRowCollection rows = dataGridView1.SelectedRows;
+                int selectedRow = Int32.Parse(rows[0].Index.ToString());
+                //MessageBox.Show(selectedRow.ToString());
+                selectedRowId = Convert.ToString(dataGridView1.Rows[selectedRow].Cells[0].Value.ToString());
+
+                //MessageBox.Show(selectedRowId);
+                using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+                {
+
+                    connection.Open();
+                    var query = $"SELECT Имя,Фамилия,Отчество,Должность from Staff WHERE staff_id={Convert.ToInt32(selectedRowId)}";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    var result = command.ExecuteReader();
+                    GivenBooks givenBooks = this.Owner as GivenBooks;
+
+                    string tempStaff = givenBooks.comboBox2.Text;
+                    string tempReader = givenBooks.comboBox3.Text;
+                    string tempBook = givenBooks.comboBox1.Text;
+
+
+                    givenBooks.loadPositions();
+
+                    givenBooks.comboBox2.Text = tempStaff;
+                    givenBooks.comboBox3.Text = tempReader;
+                    givenBooks.comboBox1.Text = tempBook;
+
+                    while (result.Read())
+                    {
+                        givenBooks.comboBox2.Text = $"{result["Имя"]} {result["Фамилия"]} {result["Отчество"]}";
+                    }
+                    //Books books = this.Owner as Books;
+                    //var s = books.selectedAuthors;
+                    //while (result.Read())
+                    //{
+                    //    books.dataGridView2.Rows.Add(($"{(string)result["Имя"]} {(string)result["Фамилия"]} {(string)result["Отчество"]}"));
+                    //    s.Add(Convert.ToInt32(selectedRowId));
+                    //}
+
+
+                    this.Close();
+
+                }
+            }
+        }
+
+        private void searchbutton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+            {
+                connection.Open();
+
+                string query = "SELECT Staff.staff_id,Staff.Имя,Staff.Фамилия,Staff.Отчество, Positions.Должность\r\nFROM Staff\r\nJOIN Positions ON Staff.должность = Positions.id\r\nWHERE CONCAT(Имя, ' ', фамилия, ' ', отчество) LIKE '%' + @query + '%'\r\nOR Positions.Должность LIKE '%' + @query + '%'\r\n";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@query", searchTextBox.Text);
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                DataTable dataTable = new DataTable();
+                adapter.Fill(dataTable);
+                dataGridView1.DataSource = dataTable;
+                dataGridView1.Columns["staff_id"].Visible = false;
+
+
+            }
+
+        }
+
+        private void resetbutton_Click(object sender, EventArgs e)
+        {
+            showrecords();
+            searchTextBox.Text = "";
         }
     }
 }

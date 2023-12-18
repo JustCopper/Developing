@@ -17,6 +17,7 @@ namespace Developing
             InitializeComponent();
 
             //CreateDataBase();
+            testtest();
             this.mode = mode;
             //insertrecord();
             if (mode != "") DisableSecondaryOptions();
@@ -70,7 +71,7 @@ namespace Developing
 
         private void StuffToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form staff_Form = new Staff();
+            Form staff_Form = new Staff("");
             staff_Form.Show();
         }
 
@@ -85,9 +86,9 @@ namespace Developing
         }
         private void ChangeVisibleAddingButtons()
         {
-            addbutton.Visible = !addbutton.Visible;
-            editbutton.Visible = !editbutton.Visible;
-            deletebutton.Visible = !deletebutton.Visible;
+            addbutton.Enabled = !addbutton.Enabled;
+            editbutton.Enabled = !editbutton.Enabled;
+            deletebutton.Enabled = !deletebutton.Enabled;
         }
         private void ClearTextBoxes()
         {
@@ -104,14 +105,33 @@ namespace Developing
             label1.Visible = !label1.Visible;
             label2.Visible = !label2.Visible;
             label_genre.Visible = !label_genre.Visible;
-            
+
+            searchTextBox.Visible = !searchTextBox.Visible;
+            searchbutton.Visible = !searchbutton.Visible;
+            resetbutton.Visible = !resetbutton.Visible;
 
         }
+        private void testtest()
+        {
+            // Удалить DataGridView из GroupBox
+            groupBox1.Controls.Remove(dataGridView1);
+            groupBox1.Controls.Remove(searchbutton);
+            groupBox1.Controls.Remove(resetbutton);
+            groupBox1.Controls.Remove(searchTextBox);
 
+
+            panel3.Controls.Add(dataGridView1);
+            panel3.Controls.Add(searchTextBox);
+            panel3.Controls.Add(searchbutton);
+            panel3.Controls.Add(resetbutton);
+
+
+        }
         private void addbutton_Click(object sender, EventArgs e)
         {
             HideTextBoxes();
             ClearTextBoxes();
+            groupBox1.Visible = !groupBox1.Visible;
             dataGridView1.Visible = false;
             savebutton.Visible = true;
             cancelbutton.Visible = true;
@@ -140,6 +160,8 @@ namespace Developing
                     dataGridView1.Visible = true;
                     savebutton.Visible = false;
                     cancelbutton.Visible = false;
+                    groupBox1.Visible = !groupBox1.Visible;
+
                     textBox_name.Text = ""; //Очистка поля добавления
                     textBox_surname.Text = "";
                     textBox_lastname.Text = "";
@@ -163,6 +185,8 @@ namespace Developing
                     dataGridView1.Visible = true;
                     savebutton.Visible = false;
                     cancelbutton.Visible = false;
+                    groupBox1.Visible = !groupBox1.Visible;
+
                     textBox_name.Text = "";
                     textBox_surname.Text = "";
                     textBox_lastname.Text = "";
@@ -266,6 +290,8 @@ namespace Developing
                 }
                 HideTextBoxes();
                 dataGridView1.Visible = false;
+                groupBox1.Visible = !groupBox1.Visible;
+
                 savebutton.Visible = true;
                 cancelbutton.Visible = true;
 
@@ -340,14 +366,39 @@ namespace Developing
 
         private void cancelbutton_Click(object sender, EventArgs e)
         {
-            
+            groupBox1.Visible = !groupBox1.Visible;
+
             dataGridView1.Visible = true;
             savebutton.Visible = false;
             cancelbutton.Visible = false;
-            
+
             ChangeVisibleAddingButtons();
             HideTextBoxes();
             ClearTextBoxes();
+        }
+
+        private void searchbutton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+            {
+                connection.Open();
+                var searchquery = searchTextBox.Text;
+                string query = "SELECT * FROM Authors WHERE LOWER(CONCAT(Имя,' ',Фамилия,' ',Отчество)) LIKE LOWER('%' + @query + '%')";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@query", searchquery);
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                DataTable dataTable = new DataTable();
+                adapter.Fill(dataTable);
+                dataGridView1.DataSource = dataTable;
+                dataGridView1.Columns["author_id"].Visible = false;
+
+            }
+        }
+
+        private void resetbutton_Click(object sender, EventArgs e)
+        {
+            ShowRecords();
+            searchTextBox.Text = "";
         }
     }
 }

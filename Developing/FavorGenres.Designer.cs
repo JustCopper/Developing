@@ -35,7 +35,9 @@
             dateTimePicker2 = new DateTimePicker();
             ApplyParameters = new Button();
             ExportButton = new Button();
+            groupBox1 = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            groupBox1.SuspendLayout();
             SuspendLayout();
             // 
             // dataGridView1
@@ -46,7 +48,7 @@
             dataGridView1.AllowUserToResizeRows = false;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(23, 116);
+            dataGridView1.Location = new Point(29, 90);
             dataGridView1.MultiSelect = false;
             dataGridView1.Name = "dataGridView1";
             dataGridView1.ReadOnly = true;
@@ -58,7 +60,7 @@
             // dateTimePicker1
             // 
             dateTimePicker1.Format = DateTimePickerFormat.Short;
-            dateTimePicker1.Location = new Point(23, 42);
+            dateTimePicker1.Location = new Point(29, 48);
             dateTimePicker1.Name = "dateTimePicker1";
             dateTimePicker1.Size = new Size(115, 23);
             dateTimePicker1.TabIndex = 1;
@@ -66,7 +68,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(23, 24);
+            label1.Location = new Point(29, 30);
             label1.Name = "label1";
             label1.Size = new Size(98, 15);
             label1.TabIndex = 2;
@@ -75,7 +77,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(162, 24);
+            label2.Location = new Point(168, 30);
             label2.Name = "label2";
             label2.Size = new Size(90, 15);
             label2.TabIndex = 4;
@@ -84,14 +86,14 @@
             // dateTimePicker2
             // 
             dateTimePicker2.Format = DateTimePickerFormat.Short;
-            dateTimePicker2.Location = new Point(162, 42);
+            dateTimePicker2.Location = new Point(168, 48);
             dateTimePicker2.Name = "dateTimePicker2";
             dateTimePicker2.Size = new Size(113, 23);
             dateTimePicker2.TabIndex = 3;
             // 
             // ApplyParameters
             // 
-            ApplyParameters.Location = new Point(281, 44);
+            ApplyParameters.Location = new Point(287, 50);
             ApplyParameters.Name = "ApplyParameters";
             ApplyParameters.Size = new Size(89, 23);
             ApplyParameters.TabIndex = 5;
@@ -101,7 +103,7 @@
             // 
             // ExportButton
             // 
-            ExportButton.Location = new Point(376, 44);
+            ExportButton.Location = new Point(382, 50);
             ExportButton.Name = "ExportButton";
             ExportButton.Size = new Size(110, 23);
             ExportButton.TabIndex = 6;
@@ -109,23 +111,34 @@
             ExportButton.UseVisualStyleBackColor = true;
             ExportButton.Click += ExportButton_Click;
             // 
+            // groupBox1
+            // 
+            groupBox1.Controls.Add(dataGridView1);
+            groupBox1.Controls.Add(ExportButton);
+            groupBox1.Controls.Add(dateTimePicker1);
+            groupBox1.Controls.Add(ApplyParameters);
+            groupBox1.Controls.Add(label1);
+            groupBox1.Controls.Add(label2);
+            groupBox1.Controls.Add(dateTimePicker2);
+            groupBox1.Location = new Point(12, 17);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(522, 421);
+            groupBox1.TabIndex = 7;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Актуальные жанры";
+            // 
             // FavorGenres
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(516, 450);
-            Controls.Add(ExportButton);
-            Controls.Add(ApplyParameters);
-            Controls.Add(label2);
-            Controls.Add(dateTimePicker2);
-            Controls.Add(label1);
-            Controls.Add(dateTimePicker1);
-            Controls.Add(dataGridView1);
+            ClientSize = new Size(551, 450);
+            Controls.Add(groupBox1);
             Name = "FavorGenres";
-            Text = "ReportMoreBooks";
+            Text = "Актуальные жанры";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -137,5 +150,6 @@
         private DateTimePicker dateTimePicker2;
         private Button ApplyParameters;
         private Button ExportButton;
+        private GroupBox groupBox1;
     }
 }

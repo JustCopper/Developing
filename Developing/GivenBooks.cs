@@ -27,7 +27,7 @@ namespace Developing
         }
 
 
-        private void loadPositions()
+        public void loadPositions()
         {
             using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
             {
@@ -82,14 +82,14 @@ namespace Developing
 
         }
 
-        private void showrecords()
+        public void showrecords()
         {
             using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
             {
 
 
                 connection.Open();
-                var query = $"SELECT \r\nGivenBooks.p_id AS p_id, NewBooks.Название AS Книга, \r\n CONCAT(Readers.Имя, ' ', Readers.Фамилия, ' ', Readers.Отчество) AS Читатель,\r\n CONCAT(Staff.Имя, ' ', Staff.Фамилия, ' ', Staff.Отчество) AS Сотрудник,given_date as [Дата выдачи],return_date AS [Дата возврата], GivenBooks.actual_return_date as [Фактический возврат] \r\nFROM \r\n GivenBooks\r\nINNER JOIN \r\n NewBooks ON GivenBooks.book_id = NewBooks.book_id\r\nINNER JOIN \r\n Readers ON GivenBooks.reader_id = Readers.reader_id\r\nINNER JOIN \r\n Staff ON GivenBooks.staff_id = Staff.staff_id;\r\n";
+                var query = $"SELECT \r\nGivenBooks.p_id AS p_id, NewBooks.Название AS Книга,NewBooks.ISBN, \r\n CONCAT(Readers.Имя, ' ', Readers.Фамилия, ' ', Readers.Отчество) AS Читатель,\r\n CONCAT(Staff.Имя, ' ', Staff.Фамилия, ' ', Staff.Отчество) AS Сотрудник,given_date as [Дата выдачи],return_date AS [Дата возврата], GivenBooks.actual_return_date as [Фактический возврат] \r\nFROM \r\n GivenBooks\r\nINNER JOIN \r\n NewBooks ON GivenBooks.book_id = NewBooks.book_id\r\nINNER JOIN \r\n Readers ON GivenBooks.reader_id = Readers.reader_id\r\nINNER JOIN \r\n Staff ON GivenBooks.staff_id = Staff.staff_id;\r\n";
 
 
                 SqlCommand command = new SqlCommand(query, connection);
@@ -145,22 +145,21 @@ namespace Developing
         {
 
         }
-
+        private void ChangeVisibleAddingButtons()
+        {
+            addbutton.Enabled = !addbutton.Enabled;
+            editbutton.Enabled = !editbutton.Enabled;
+            deletebutton.Enabled = !deletebutton.Enabled;
+            openButton.Enabled = !openButton.Enabled;
+        }
 
         private void addbutton_Click(object sender, EventArgs e)
         {
+            ChangeVisibleAddingButtons();
+            ChangeVisibility();
 
-            namelabel.Visible = true;
-            secondnamelabel.Visible = true;
-            thirdnamelabel.Visible = true;
-            comboBox1.Visible = true;
-            comboBox2.Visible = true;
-            comboBox3.Visible = true;
+            //select_book_for_return.Visible = !select_book_for_return.Visible;
 
-            dataGridView1.Visible = false;
-            savebutton.Visible = true;
-            selectFromForm.Visible = true;
-            cancelbutton.Visible = true;
         }
 
         private void savebutton_Click(object sender, EventArgs e)
@@ -237,24 +236,13 @@ namespace Developing
 
 
 
-                dataGridView1.Visible = true;
-                savebutton.Visible = false;
+                ChangeVisibility();
 
-
-                //namelabel.Visible = false;
-                namelabel.Visible = false;
-                secondnamelabel.Visible = false;
-                thirdnamelabel.Visible = false;
-                comboBox1.Visible = false;
-                comboBox2.Visible = false;
-                comboBox3.Visible = false;
-                dataGridView1.Visible = true;
-                savebutton.Visible = false;
-                selectFromForm.Visible = false;
-                cancelbutton.Visible = false;
                 showrecords();
+                ChangeVisibleAddingButtons();
+
             }
-            else if (isReturnMode)
+            else if (isReturnMode) // Неактуально
             {
                 using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
                 {
@@ -334,17 +322,10 @@ namespace Developing
 
                     isEditMode = false;
 
-                    namelabel.Visible = false;
-                    secondnamelabel.Visible = false;
-                    thirdnamelabel.Visible = false;
-                    comboBox1.Visible = false;
-                    comboBox2.Visible = false;
-                    comboBox3.Visible = false;
-                    dataGridView1.Visible = true;
-                    savebutton.Visible = false;
-                    selectFromForm.Visible = false;
-                    cancelbutton.Visible = false;
+                    ChangeVisibility();
+
                     showrecords();
+                    ChangeVisibleAddingButtons();
 
                 }
 
@@ -355,6 +336,13 @@ namespace Developing
             }
 
             //dataGridView1.CurrentCell.Selected = false;
+        }
+        private void ChangeVisibility()
+        {
+            groupBox1.Visible = !groupBox1.Visible;
+            searchbutton.Visible = !searchbutton.Visible;
+            searchTextBox.Visible = !searchTextBox.Visible;
+            resetbutton.Visible = !resetbutton.Visible;
         }
         private bool validatePosition(string txt)
         {
@@ -403,13 +391,19 @@ namespace Developing
                 DialogResult dialogResult = MessageBox.Show("Вы точно хотите удалить выбранную запись?", "Удаление", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
+                    try
+                    {
+                        string query = $"DELETE from GivenBooks WHERE p_id = @selectedRowId";
+                        SqlCommand command = new SqlCommand(query, connection);
+                        command.Parameters.AddWithValue("@selectedRowId", selectedRowId);
+                        command.ExecuteNonQuery();
 
-                    string query = $"DELETE from GivenBooks WHERE p_id = @selectedRowId";
-                    SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@selectedRowId", selectedRowId);
-                    command.ExecuteNonQuery();
-
-                    //dataGridView1.CurrentCell.Selected = false;
+                        //dataGridView1.CurrentCell.Selected = false;
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Ошибка!\nДанная запись уже используется!");
+                    }
                 }
                 else if (dialogResult == DialogResult.No)
                 {
@@ -450,19 +444,14 @@ namespace Developing
             }
 
 
-            namelabel.Visible = true;
-            secondnamelabel.Visible = true;
-            thirdnamelabel.Visible = true;
-            comboBox1.Visible = true;
-            comboBox2.Visible = true;
-            comboBox3.Visible = true;
-            comboBox1.Visible = true;
-            dataGridView1.Visible = false;
-            savebutton.Visible = true;
-            selectFromForm.Visible = true;
-            cancelbutton.Visible = true;
+
+
+
+            ChangeVisibility();
+
 
             isEditMode = true;
+            ChangeVisibleAddingButtons();
 
 
             //textBox_position.Text = result.ToString();
@@ -491,23 +480,16 @@ namespace Developing
 
         private void cancelbutton_Click(object sender, EventArgs e)
         {
-            if (isReturnMode)
+            if (isReturnMode) //Неактуально
             {
                 ChangeFunctionsReturn();
             }
             else
             {
-                namelabel.Visible = false;
-                secondnamelabel.Visible = false;
-                thirdnamelabel.Visible = false;
-                comboBox1.Visible = false;
-                comboBox2.Visible = false;
-                comboBox3.Visible = false;
-                comboBox1.Visible = false;
-                dataGridView1.Visible = true;
-                savebutton.Visible = false;
-                selectFromForm.Visible = false;
-                cancelbutton.Visible = false;
+                ChangeVisibility();
+
+                ChangeVisibleAddingButtons();
+
             }
 
 
@@ -519,7 +501,7 @@ namespace Developing
             return_button.Visible = !return_button.Visible;
             comboBox4.Visible = !comboBox4.Visible;
             label_for_return_book.Visible = !label_for_return_book.Visible;
-            select_book_for_return.Visible = !select_book_for_return.Visible;
+
             dataGridView1.Visible = !dataGridView1.Visible;
 
             cancelbutton.Visible = !cancelbutton.Visible;
@@ -528,6 +510,11 @@ namespace Developing
             addbutton.Visible = !addbutton.Visible;
             editbutton.Visible = !editbutton.Visible;
             deletebutton.Visible = !deletebutton.Visible;
+
+            searchbutton.Visible = !searchbutton.Visible;
+            searchTextBox.Visible = !searchTextBox.Visible;
+            resetbutton.Visible = !resetbutton.Visible;
+
         }
         private void return_button_Click(object sender, EventArgs e)
         {
@@ -539,6 +526,88 @@ namespace Developing
             Form books_form = new Books("selectionISBN");
             books_form.Owner = this;
             books_form.Show();
+        }
+
+        private void resetbutton_Click(object sender, EventArgs e)
+        {
+            searchTextBox.Text = "";
+            showrecords();
+        }
+
+        private void searchbutton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+            {
+
+                connection.Open();
+
+                string query = "SELECT GB.p_id AS 'p_id', NB.Название as Книга, NB.ISBN, R.Имя + ' ' + R.Фамилия + ' ' + R.Отчество AS 'Читатель', S.Имя + ' ' + S.Фамилия + ' ' + S.Отчество AS 'Сотрудник', GB.given_date AS 'Дата выдачи', GB.return_date AS 'Дата возврата', GB.actual_return_date AS 'Фактический возврат' FROM NewBooks NB LEFT JOIN GivenBooks GB ON NB.book_id = GB.book_id LEFT JOIN Readers R ON GB.reader_id = R.reader_id LEFT JOIN Staff S ON GB.staff_id = S.staff_id WHERE (NB.Название LIKE '%' + @query + '%' OR R.Имя + ' ' + R.Фамилия + ' ' + R.Отчество LIKE '%' + @query + '%' OR S.Имя + ' ' + S.Фамилия + ' ' + S.Отчество LIKE '%' + @query + '%' OR NB.ISBN LIKE '%' + @query + '%') AND GB.given_date IS NOT NULL";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@query", searchTextBox.Text);
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                DataTable dataTable = new DataTable();
+                adapter.Fill(dataTable);
+                dataGridView1.DataSource = dataTable;
+                dataGridView1.Columns["p_id"].Visible = false;
+
+            }
+        }
+
+        private void openButton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+            {
+
+                Dictionary<string, string> resultDict = new Dictionary<string, string>();
+
+                connection.Open();
+                if (selectedRowId == null)
+                {
+                    MessageBox.Show("Запись в таблице не выбрана!");
+                    return;
+                }
+                string query = "SELECT GB.p_id AS 'p_id', NB.Название as 'Книга',NB.ISBN, R.Имя + ' ' + R.Фамилия + ' ' + R.Отчество AS 'Читатель', S.Имя + ' ' + S.Фамилия + ' ' + S.Отчество AS 'Сотрудник', GB.given_date AS 'Дата выдачи', GB.return_date AS 'Дата возврата', GB.actual_return_date AS 'Фактический возврат' FROM NewBooks NB LEFT JOIN GivenBooks GB ON NB.book_id = GB.book_id LEFT JOIN Readers R ON GB.reader_id = R.reader_id LEFT JOIN Staff S ON GB.staff_id = S.staff_id WHERE GB.p_id = @selectedRowId";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@selectedRowId", selectedRowId);
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    //resultDict.Add("Книга", reader["Книга"].ToString());
+
+                    resultDict["p_id"] = reader["p_id"].ToString();
+                    resultDict["Книга"] = reader["Книга"].ToString();
+                    resultDict["ISBN"] = reader["ISBN"].ToString();
+                    resultDict["Читатель"] = reader["Читатель"].ToString();
+                    resultDict["Сотрудник"] = reader["Сотрудник"].ToString();
+                    resultDict["Дата выдачи"] = reader["Дата выдачи"].ToString();
+                    resultDict["Дата возврата"] = reader["Дата возврата"].ToString();
+                    resultDict["Фактический возврат"] = reader["Фактический возврат"].ToString();
+                }
+                BookRecord bookRecord = new BookRecord(resultDict);
+                bookRecord.Owner = this;
+                bookRecord.Show();
+
+
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Readers r = new Readers("selection");
+            r.Owner = this;
+            r.Show();
+
+            //Form books_form = new Books("selectionBook");
+            //books_form.Owner = this;
+            //books_form.Show();
+        }
+
+        private void SelectStaffButton_Click(object sender, EventArgs e)
+        {
+            Staff s = new Staff("selection");
+            s.Owner = this;
+            s.Show();
         }
     }
 }

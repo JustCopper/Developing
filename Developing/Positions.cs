@@ -113,7 +113,7 @@ namespace Developing
 
         private void StuffToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form staff_Form = new Staff();
+            Form staff_Form = new Staff("");
             staff_Form.Show();
         }
 
@@ -128,18 +128,15 @@ namespace Developing
         }
         private void ChangeVisibleAddingButtons()
         {
-            addbutton.Visible = !addbutton.Visible;
-            editbutton.Visible = !editbutton.Visible;
-            deletebutton.Visible = !deletebutton.Visible;
+            addbutton.Enabled = !addbutton.Enabled;
+            editbutton.Enabled = !editbutton.Enabled;
+            deletebutton.Enabled = !deletebutton.Enabled;
         }
 
         private void addbutton_Click(object sender, EventArgs e)
         {
-            label_position.Visible = true;
-            textBox_position.Visible = true;
-            dataGridView1.Visible = false;
-            savebutton.Visible = true;
-            cancelbutton.Visible = true;
+            HideTextBoxes();
+
             ChangeVisibleAddingButtons();
         }
 
@@ -165,11 +162,8 @@ namespace Developing
                     // Execute the command
                     command.ExecuteNonQuery();
 
-                    label_position.Visible = false; // Скрытие блоков добавления/Редактирования
-                    textBox_position.Visible = false;
-                    dataGridView1.Visible = true;
-                    savebutton.Visible = false;
-                    cancelbutton.Visible = false;
+                    HideTextBoxes();
+
                     textBox_position.Text = ""; //Очистка поля добавления
                     ChangeVisibleAddingButtons();
                     showrecords();
@@ -184,12 +178,8 @@ namespace Developing
                     command.Parameters.AddWithValue("@Position", textBox_position.Text);
                     command.Parameters.AddWithValue("@SelectedRowId", selectedRowId);
                     command.ExecuteNonQuery();
+                    HideTextBoxes();
 
-                    label_position.Visible = false;
-                    textBox_position.Visible = false;
-                    dataGridView1.Visible = true;
-                    savebutton.Visible = false;
-                    cancelbutton.Visible = false;
                     textBox_position.Text = "";
 
                     isEditMode = false;
@@ -300,11 +290,7 @@ namespace Developing
                     MessageBox.Show("Запись в таблице не выбрана!");
                     return;
                 }
-                label_position.Visible = true;
-                textBox_position.Visible = true;
-                dataGridView1.Visible = false;
-                savebutton.Visible = true;
-                cancelbutton.Visible = true;
+
 
 
                 isEditMode = true;
@@ -321,6 +307,7 @@ namespace Developing
                 textBox_position.Text = result.ToString();
 
                 ChangeVisibleAddingButtons();
+                HideTextBoxes();
 
 
             }
@@ -360,8 +347,11 @@ namespace Developing
                     // Execute the command and get the result
                     string result = command.ExecuteScalar().ToString();
                     Staff staff = this.Owner as Staff;
+
+                    staff.loadPositions();
                     var s = staff.comboBox1;
                     s.SelectedItem = result.ToString();
+
                     this.Close();
 
                 }
@@ -380,13 +370,52 @@ namespace Developing
 
         private void cancelbutton_Click(object sender, EventArgs e)
         {
-            label_position.Visible = false; // Скрытие блоков добавления/Редактирования
-            textBox_position.Visible = false;
-            dataGridView1.Visible = true;
-            savebutton.Visible = false;
-            cancelbutton.Visible = false;
+            HideTextBoxes();
             textBox_position.Text = ""; //Очистка поля добавления
             ChangeVisibleAddingButtons();
+        }
+
+        private void searchbutton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+            {
+
+                connection.Open();
+
+                string query = "SELECT * FROM Positions WHERE LOWER(Должность) LIKE LOWER('%' + @query + '%')";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@query", searchTextBox.Text);
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                DataTable dataTable = new DataTable();
+                adapter.Fill(dataTable);
+                dataGridView1.DataSource = dataTable;
+                dataGridView1.Columns["id"].Visible = false;
+
+            }
+        }
+
+        private void HideTextBoxes()
+        {
+
+            //textBox_position.Visible = !textBox_position.Visible;
+            //label_position.Visible = !label_position.Visible;
+            //dataGridView1.Visible = !dataGridView1.Visible;
+            //cancelbutton.Visible = !cancelbutton.Visible;
+            //savebutton.Visible = !savebutton.Visible;
+
+            //searchTextBox.Visible = !searchTextBox.Visible;
+            //searchbutton.Visible = !searchbutton.Visible;
+            //resetbutton.Visible = !resetbutton.Visible;
+            groupBox1.Visible = !groupBox1.Visible;
+            searchTextBox.Visible = !searchTextBox.Visible;
+            searchbutton.Visible = !searchbutton.Visible;
+            resetbutton.Visible = !resetbutton.Visible;
+        }
+
+        private void resetbutton_Click(object sender, EventArgs e)
+        {
+            showrecords();
+            searchTextBox.Text = "";
         }
     }
 }

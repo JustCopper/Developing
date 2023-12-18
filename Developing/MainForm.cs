@@ -15,7 +15,7 @@
 
         private void StuffToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form staff_Form = new Staff();
+            Form staff_Form = new Staff("");
             staff_Form.Show();
         }
 
@@ -57,7 +57,7 @@
 
         private void выданныеКнигиToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form moreBooksGiven = new ReportMoreBooks();
+            Form moreBooksGiven = new GivenBooksForYear();
             moreBooksGiven.Show();
         }
 
@@ -69,7 +69,7 @@
 
         private void актуальныеИздательстваToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form PHReport = new PHReport();
+            Form PHReport = new NotReturned();
             PHReport.Show();
         }
     }

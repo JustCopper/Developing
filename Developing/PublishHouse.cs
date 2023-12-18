@@ -121,7 +121,7 @@ namespace Developing
 
         private void StuffToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form staff_Form = new Staff();
+            Form staff_Form = new Staff("");
             staff_Form.Show();
         }
 
@@ -136,21 +136,24 @@ namespace Developing
         }
         private void ChangeVisibleAddingButtons()
         {
-            addbutton.Visible = !addbutton.Visible;
-            editbutton.Visible = !editbutton.Visible;
-            deletebutton.Visible = !deletebutton.Visible;
+            addbutton.Enabled = !addbutton.Enabled;
+            editbutton.Enabled = !editbutton.Enabled;
+            deletebutton.Enabled = !deletebutton.Enabled;
+        }
+        private void HideTextBoxes()
+        {
+
+
+            groupBox1.Visible = !groupBox1.Visible;
+            searchTextBox.Visible = !searchTextBox.Visible;
+            searchbutton.Visible = !searchbutton.Visible;
+            resetbutton.Visible = !resetbutton.Visible;
         }
 
         private void addbutton_Click(object sender, EventArgs e)
         {
-            label_name.Visible = true;
-            label1.Visible = true;
-            PublishHouse_address.Visible = true;
 
-            PublishHouse_Name.Visible = true;
-            dataGridView1.Visible = false;
-            savebutton.Visible = true;
-            cancelbutton.Visible = true;
+            HideTextBoxes();
             ChangeVisibleAddingButtons();
         }
 
@@ -230,13 +233,8 @@ namespace Developing
 
                     command.ExecuteNonQuery();
 
-                    label_name.Visible = false; // Скрытие блоков добавления/Редактирования
-                    label1.Visible = false;
-                    PublishHouse_address.Visible = false;
-                    PublishHouse_Name.Visible = false;
-                    dataGridView1.Visible = true;
-                    savebutton.Visible = false;
-                    cancelbutton.Visible = false;
+                    HideTextBoxes();
+
                     PublishHouse_Name.Text = ""; //Очистка поля добавления
                     PublishHouse_address.Text = "";
                     ChangeVisibleAddingButtons();
@@ -262,13 +260,8 @@ namespace Developing
                     command.ExecuteNonQuery();
                     isEditMode = false;
 
-                    label_name.Visible = false; // Скрытие блоков добавления/Редактирования
-                    label1.Visible = false;
-                    PublishHouse_address.Visible = false;
-                    PublishHouse_Name.Visible = false;
-                    dataGridView1.Visible = true;
-                    savebutton.Visible = false;
-                    cancelbutton.Visible = false;
+                    HideTextBoxes();
+
                     PublishHouse_Name.Text = "";
                     PublishHouse_address.Text = "";
                     ChangeVisibleAddingButtons();
@@ -352,7 +345,7 @@ namespace Developing
                         //var reader = comm.ExecuteNonQuery();
                         //MessageBox.Show(reader.ToString());
                         //MessageBox.Show($"Table:{reader.GetString(0)}, RowId:{reader.GetInt64(1)},Parent Table:{reader.GetString(2)},Foreign_Key:{reader.GetInt32(3)}");
-                        MessageBox.Show(exc.Message);
+                        MessageBox.Show("Ошибка!\nДанная запись уже используется!");
                         //MessageBox.Show($"Ошибка при удалении издательства из таблицы\nИздательство используется в справочнике Книги");
                         //transaction.Rollback();
                     }
@@ -382,13 +375,8 @@ namespace Developing
                     MessageBox.Show("Запись в таблице не выбрана!");
                     return;
                 }
-                label_name.Visible = true;
-                label1.Visible = true;
-                PublishHouse_address.Visible = true;
-                PublishHouse_Name.Visible = true;
-                dataGridView1.Visible = false;
-                savebutton.Visible = true;
-                cancelbutton.Visible = true;
+                HideTextBoxes();
+
                 ChangeVisibleAddingButtons();
 
 
@@ -452,8 +440,15 @@ namespace Developing
 
                     var result = command.ExecuteScalar()?.ToString();
                     Books books = this.Owner as Books;
-                    var s = books.comboBox3;
-                    s.SelectedItem = result.ToString();
+                    string tempgenre = books.comboBox1.Text;
+                    string publishhouse = result.ToString();
+
+                    books.loadPositions();
+                    //var s = books.comboBox3;
+                    //s.SelectedItem = result.ToString();
+                    books.comboBox3.Text = publishhouse;
+                    books.comboBox1.Text = tempgenre;
+
                     this.Close();
 
                     //connection.Open();
@@ -480,17 +475,38 @@ namespace Developing
 
         private void cancelbutton_Click(object sender, EventArgs e)
         {
-            label_name.Visible = false; // Скрытие блоков добавления/Редактирования
-            label1.Visible = false;
-            PublishHouse_address.Visible = false;
-            PublishHouse_Name.Visible = false;
-            dataGridView1.Visible = true;
-            savebutton.Visible = false;
-            cancelbutton.Visible = false;
+            if (isEditMode) { isEditMode = !isEditMode; }
+            HideTextBoxes();
+
             PublishHouse_Name.Text = ""; //Очистка поля добавления
             PublishHouse_address.Text = "";
             ChangeVisibleAddingButtons();
 
+        }
+
+        private void resetbutton_Click(object sender, EventArgs e)
+        {
+            searchTextBox.Text = "";
+            showrecordss();
+        }
+
+        private void searchbutton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+            {
+
+                connection.Open();
+
+                string query = "SELECT * FROM PublishHouses WHERE Издательство LIKE '%' + @query + '%' OR адрес LIKE '%' + @query + '%'";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@query", searchTextBox.Text);
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                DataTable dataTable = new DataTable();
+                adapter.Fill(dataTable);
+                dataGridView1.DataSource = dataTable;
+                dataGridView1.Columns["publishhouse_id"].Visible = false;
+
+            }
         }
     }
 }

@@ -29,6 +29,20 @@ namespace Developing
         {
             menuStrip1.Enabled = false;
         }
+        private void HideTextBoxes()
+        {
+            groupBox1.Visible = !groupBox1.Visible;
+            //textBox_genre.Visible = !textBox_genre.Visible;
+            //label_genre.Visible = !label_genre.Visible;
+            //dataGridView1.Visible = !dataGridView1.Visible;
+            //cancelbutton.Visible = !cancelbutton.Visible;
+            //savebutton.Visible = !savebutton.Visible;
+
+            //searchTextBox.Visible = !searchTextBox.Visible;
+            //searchbutton.Visible = !searchbutton.Visible;
+            //resetbutton.Visible = !resetbutton.Visible;
+
+        }
 
         //private void checkfk()
         //{
@@ -116,7 +130,7 @@ namespace Developing
 
         private void StuffToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form staff_Form = new Staff();
+            Form staff_Form = new Staff("");
             staff_Form.Show();
         }
 
@@ -131,17 +145,13 @@ namespace Developing
         }
         private void ChangeVisibleAddingButtons()
         {
-            addbutton.Visible = !addbutton.Visible;
-            editbutton.Visible = !editbutton.Visible;
-            deletebutton.Visible = !deletebutton.Visible;
+            addbutton.Enabled = !addbutton.Enabled;
+            editbutton.Enabled = !editbutton.Enabled;
+            deletebutton.Enabled = !deletebutton.Enabled;
         }
         private void addbutton_Click(object sender, EventArgs e)
         {
-            label_genre.Visible = true;
-            textBox_genre.Visible = true;
-            dataGridView1.Visible = false;
-            savebutton.Visible = true;
-            cancelbutton.Visible = true;
+            HideTextBoxes();
             ChangeVisibleAddingButtons();
         }
 
@@ -167,11 +177,8 @@ namespace Developing
                     // Execute the command
                     command.ExecuteNonQuery();
 
-                    label_genre.Visible = false; // Скрытие блоков добавления/Редактирования
-                    textBox_genre.Visible = false;
-                    dataGridView1.Visible = true;
-                    savebutton.Visible = false;
-                    cancelbutton.Visible = false;
+                    HideTextBoxes();
+
                     textBox_genre.Text = ""; //Очистка поля добавления
                     ChangeVisibleAddingButtons();
 
@@ -194,11 +201,8 @@ namespace Developing
                     // Execute the command
                     command.ExecuteNonQuery();
 
-                    label_genre.Visible = false;
-                    textBox_genre.Visible = false;
-                    dataGridView1.Visible = true;
-                    savebutton.Visible = false;
-                    cancelbutton.Visible = false;
+                    HideTextBoxes();
+
                     textBox_genre.Text = "";
 
                     isEditMode = false;
@@ -303,11 +307,8 @@ namespace Developing
                     MessageBox.Show("Запись в таблице не выбрана!");
                     return;
                 }
-                label_genre.Visible = true;
-                textBox_genre.Visible = true;
-                dataGridView1.Visible = false;
-                savebutton.Visible = true;
-                cancelbutton.Visible = true;
+                HideTextBoxes();
+
                 ChangeVisibleAddingButtons();
 
                 isEditMode = true;
@@ -354,6 +355,16 @@ namespace Developing
                     Books books = this.Owner as Books;
                     var s = books.comboBox1;
                     s.SelectedItem = result.ToString();
+
+                    string tempgenre = result.ToString();
+                    string publishhouse = books.comboBox3.Text;
+
+                    books.loadPositions();
+                    //var s = books.comboBox3;
+                    //s.SelectedItem = result.ToString();
+                    books.comboBox3.Text = publishhouse;
+                    books.comboBox1.Text = tempgenre;
+
                     this.Close();
 
                 }
@@ -372,13 +383,40 @@ namespace Developing
 
         private void cancelbutton_Click(object sender, EventArgs e)
         {
-            label_genre.Visible = false; // Скрытие блоков добавления/Редактирования
-            textBox_genre.Visible = false;
-            dataGridView1.Visible = true;
-            savebutton.Visible = false;
-            cancelbutton.Visible = false;
+            HideTextBoxes();
+
             textBox_genre.Text = ""; //Очистка поля добавления
             ChangeVisibleAddingButtons();
+        }
+
+        private void searchbutton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+            {
+
+                connection.Open();
+
+                string query = "SELECT * FROM Genres WHERE LOWER(Жанр) LIKE LOWER('%' + @query + '%')";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@query", searchTextBox.Text);
+                DataTable data = new DataTable();
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                adapter.Fill(data);
+                dataGridView1.DataSource = data;
+                dataGridView1.Columns["genre_id"].Visible = false;
+
+            }
+        }
+
+        private void resetbutton_Click(object sender, EventArgs e)
+        {
+            showrecords();
+            searchTextBox.Text = "";
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
         }
     }
 }

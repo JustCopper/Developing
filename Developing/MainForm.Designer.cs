@@ -127,22 +127,22 @@
             // выданныеКнигиToolStripMenuItem
             // 
             выданныеКнигиToolStripMenuItem.Name = "выданныеКнигиToolStripMenuItem";
-            выданныеКнигиToolStripMenuItem.Size = new Size(216, 22);
-            выданныеКнигиToolStripMenuItem.Text = "Выданные книги";
+            выданныеКнигиToolStripMenuItem.Size = new Size(226, 22);
+            выданныеКнигиToolStripMenuItem.Text = "Количество выданных книг";
             выданныеКнигиToolStripMenuItem.Click += выданныеКнигиToolStripMenuItem_Click;
             // 
             // популярныеЖанрыToolStripMenuItem
             // 
             популярныеЖанрыToolStripMenuItem.Name = "популярныеЖанрыToolStripMenuItem";
-            популярныеЖанрыToolStripMenuItem.Size = new Size(216, 22);
+            популярныеЖанрыToolStripMenuItem.Size = new Size(261, 22);
             популярныеЖанрыToolStripMenuItem.Text = "Популярные жанры";
             популярныеЖанрыToolStripMenuItem.Click += популярныеЖанрыToolStripMenuItem_Click;
             // 
             // актуальныеИздательстваToolStripMenuItem
             // 
             актуальныеИздательстваToolStripMenuItem.Name = "актуальныеИздательстваToolStripMenuItem";
-            актуальныеИздательстваToolStripMenuItem.Size = new Size(216, 22);
-            актуальныеИздательстваToolStripMenuItem.Text = "Актуальные Издательства";
+            актуальныеИздательстваToolStripMenuItem.Size = new Size(226, 22);
+            актуальныеИздательстваToolStripMenuItem.Text = "Просрочен срок возврата";
             актуальныеИздательстваToolStripMenuItem.Click += актуальныеИздательстваToolStripMenuItem_Click;
             // 
             // MainForm

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Developing
 {
-    
+
 
     public partial class Books : Form
     {
@@ -56,7 +56,7 @@ namespace Developing
 
         //}
 
-        private void loadPositions()
+        public void loadPositions()
         {
             using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
             {
@@ -115,7 +115,7 @@ namespace Developing
 
         }
 
-        private void showrecords()
+        public void showrecords()
         {
             using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
             {
@@ -123,7 +123,7 @@ namespace Developing
                 //dataGridView1.ClearSelection();
                 //var query = "SELECT b.book_id, b.Название, CONCAT(a.Имя, ' ', a.Фамилия, ' ', a.Отчество) AS Автор, b.[Дата публикации], ph.Издательство, g.Жанр\r\nFROM Books b\r\nJOIN Authors a ON b.Автор = a.author_id\r\nJOIN PublishHouses ph ON b.Издательство = ph.publishhouse_id\r\nJOIN Genres g ON b.Жанр = g.genre_id;\r\n";
                 //var query = "SELECT b.book_id, b.Название,b.ISBN, b.[Дата публикации], ph.Издательство, g.Жанр\r\nFROM NewBooks b\r\n\r\nJOIN PublishHouses ph ON b.Издательство = ph.publishhouse_id\r\nJOIN Genres g ON b.Жанр = g.genre_id;\r\n";
-                var query = "SELECT \r\n b.book_id, \r\n b.Название,\r\n b.ISBN, \r\n b.[Дата публикации], \r\n ph.Издательство, \r\n g.Жанр,\r\n (SELECT STRING_AGG(CONCAT(a.Имя, ' ', a.Фамилия, ' ', a.Отчество), ', ') \r\n  FROM Authors_Books ab \r\n  JOIN Authors a ON ab.id_author = a.author_id \r\n  WHERE ab.id_book = b.book_id) AS Authors\r\nFROM \r\n NewBooks b\r\nJOIN \r\n PublishHouses ph ON b.Издательство = ph.publishhouse_id\r\nJOIN \r\n Genres g ON b.Жанр = g.genre_id;\r\n";
+                var query = "SELECT \r\n b.book_id, \r\n b.Название,\r\n b.ISBN, \r\n b.[Дата публикации], \r\n ph.Издательство, \r\n g.Жанр,\r\n (SELECT STRING_AGG(CONCAT(a.Имя, ' ', a.Фамилия, ' ', a.Отчество), ', ') \r\n  FROM Authors_Books ab \r\n  JOIN Authors a ON ab.id_author = a.author_id \r\n  WHERE ab.id_book = b.book_id) AS Авторы\r\nFROM \r\n NewBooks b\r\nJOIN \r\n PublishHouses ph ON b.Издательство = ph.publishhouse_id\r\nJOIN \r\n Genres g ON b.Жанр = g.genre_id;\r\n";
                 SqlCommand command = new SqlCommand(query, connection);
 
 
@@ -199,35 +199,40 @@ namespace Developing
         }
         private void ChangeVisibleAddingButtons()
         {
-            addbutton.Visible = !addbutton.Visible;
-            editbutton.Visible = !editbutton.Visible;
-            deletebutton.Visible = !deletebutton.Visible;
+            addbutton.Enabled = !addbutton.Enabled;
+            editbutton.Enabled = !editbutton.Enabled;
+            deletebutton.Enabled = !deletebutton.Enabled;
         }
         private void HideTextBoxes()
         {
+            groupBox1.Visible = !groupBox1.Visible;
 
-            textBox1.Visible = !textBox1.Visible;
-            textBoxISBN.Visible = !textBoxISBN.Visible;
-            comboBox1.Visible = !comboBox1.Visible;
-            comboBox3.Visible = !comboBox3.Visible;
-            dateTimePicker1.Visible = !dateTimePicker1.Visible;
-            dataGridView2.Visible = !dataGridView2.Visible;
-            dataGridView1.Visible = !dataGridView1.Visible;
-            label1.Visible = !label1.Visible;
-            label2.Visible = !label2.Visible;
-            label_position.Visible = !label_position.Visible;
-            namelabel.Visible = !namelabel.Visible;
-            thirdnamelabel.Visible = !thirdnamelabel.Visible;
-            secondnamelabel.Visible = !secondnamelabel.Visible;
+            //textBox1.Visible = !textBox1.Visible;
+            //textBoxISBN.Visible = !textBoxISBN.Visible;
+            //comboBox1.Visible = !comboBox1.Visible;
+            //comboBox3.Visible = !comboBox3.Visible;
+            //dateTimePicker1.Visible = !dateTimePicker1.Visible;
+            //dataGridView2.Visible = !dataGridView2.Visible;
+            //dataGridView1.Visible = !dataGridView1.Visible;
+            //label1.Visible = !label1.Visible;
+            //label2.Visible = !label2.Visible;
+            //label_position.Visible = !label_position.Visible;
+            //namelabel.Visible = !namelabel.Visible;
+            //thirdnamelabel.Visible = !thirdnamelabel.Visible;
+            //secondnamelabel.Visible = !secondnamelabel.Visible;
 
-            selectAuthorButton.Visible = !selectAuthorButton.Visible;
-            selectGenreButton.Visible = !selectGenreButton.Visible;
-            selectPublishhouseButton.Visible = !selectPublishhouseButton.Visible;
-            buttonRemoveAuthor.Visible = !buttonRemoveAuthor.Visible;
+            //selectAuthorButton.Visible = !selectAuthorButton.Visible;
+            //selectGenreButton.Visible = !selectGenreButton.Visible;
+            //selectPublishhouseButton.Visible = !selectPublishhouseButton.Visible;
+            //buttonRemoveAuthor.Visible = !buttonRemoveAuthor.Visible;
 
+            searchbutton.Visible = !searchbutton.Visible;
+            searchTextBox.Visible = !searchTextBox.Visible;
+            resetbutton.Visible = !resetbutton.Visible;
 
-            cancelbutton.Visible = !cancelbutton.Visible;
-            savebutton.Visible = !savebutton.Visible;
+            //MessageBox.Show(textBox1.Visible.ToString());
+            //cancelbutton.Visible = !cancelbutton.Visible;
+            //savebutton.Visible = !savebutton.Visible;
         }
 
         private void addbutton_Click(object sender, EventArgs e)
@@ -297,7 +302,7 @@ namespace Developing
                     command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@ISBN", textBoxISBN.Text);
                     var p_key_book = command.ExecuteScalar();
-                    MessageBox.Show(p_key_book.ToString());
+                    //MessageBox.Show(p_key_book.ToString());
 
                     if (dataGridView2.Rows.Count == 0)
                     {
@@ -496,11 +501,18 @@ namespace Developing
                 DialogResult dialogResult = MessageBox.Show("Вы точно хотите удалить выбранную запись?", "Удаление", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    var query = $"DELETE from NewBooks WHERE book_id = {Int32.Parse(selectedRowId)}";
-                    SqlCommand command = new SqlCommand(query, connection);
-                    command.ExecuteNonQuery();
-                    showrecords();
-                    //dataGridView1.CurrentCell.Selected = false;
+                    try
+                    {
+                        var query = $"DELETE from NewBooks WHERE book_id = {Int32.Parse(selectedRowId)}";
+                        SqlCommand command = new SqlCommand(query, connection);
+                        command.ExecuteNonQuery();
+                        showrecords();
+                        //dataGridView1.CurrentCell.Selected = false;
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Ошибка!\nДанная запись уже используется!");
+                    }
                 }
                 else if (dialogResult == DialogResult.No)
                 {
@@ -697,13 +709,23 @@ namespace Developing
                     Book thisbook = new Book();
                     while (result.Read())
                     {
-                        
+
                         thisbook.isbn = (string)result["ISBN"];
                         thisbook.title = (string)result["Название"];
-                        
+
                     }
                     //s.selectedBook = thisbook;
                     s.comboBox1.SelectedItem = (string)thisbook.title;
+
+                    string tempStaff = givenBooks.comboBox2.Text;
+                    string tempReader = givenBooks.comboBox3.Text;
+                    string tempBook = givenBooks.comboBox1.Text;
+
+                    givenBooks.loadPositions();
+
+                    givenBooks.comboBox2.Text = tempStaff;
+                    givenBooks.comboBox3.Text = tempReader;
+                    givenBooks.comboBox1.Text = tempBook;
                     //s.comboBox1 = result["book_id"].ToString();
                     this.Close();
 
@@ -721,10 +743,10 @@ namespace Developing
 
                 DataGridViewSelectedRowCollection rows = dataGridView1.SelectedRows;
                 int selectedRow = Int32.Parse(rows[0].Index.ToString());
-                
+
                 selectedRowId = Convert.ToString(dataGridView1.Rows[selectedRow].Cells[0].Value.ToString());
 
-                
+
                 using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
                 {
 
@@ -744,13 +766,50 @@ namespace Developing
                         thisbook.title = (string)result["Название"];
 
                     }
-                    
-                    s.comboBox4.SelectedItem = (string)thisbook.isbn;
-                    
+
+                    //s.comboBox4.SelectedItem = (string)thisbook.isbn;
+
+                    string tempStaff = givenBooks.comboBox2.Text;
+                    string tempReader = givenBooks.comboBox3.Text;
+                    string tempBook = givenBooks.comboBox1.Text;
+
+                    givenBooks.loadPositions();
+
+                    givenBooks.comboBox2.Text = tempStaff;
+                    givenBooks.comboBox3.Text = tempReader;
+                    givenBooks.comboBox1.Text = tempBook;
+
                     this.Close();
 
                 }
             }
+        }
+
+        private void searchbutton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
+            {
+                string searchquery = searchTextBox.Text;
+                //dataGridView1.ClearSelection();
+                //var query = "SELECT b.book_id, b.Название, CONCAT(a.Имя, ' ', a.Фамилия, ' ', a.Отчество) AS Автор, b.[Дата публикации], ph.Издательство, g.Жанр\r\nFROM Books b\r\nJOIN Authors a ON b.Автор = a.author_id\r\nJOIN PublishHouses ph ON b.Издательство = ph.publishhouse_id\r\nJOIN Genres g ON b.Жанр = g.genre_id;\r\n";
+                //var query = "SELECT b.book_id, b.Название,b.ISBN, b.[Дата публикации], ph.Издательство, g.Жанр\r\nFROM NewBooks b\r\n\r\nJOIN PublishHouses ph ON b.Издательство = ph.publishhouse_id\r\nJOIN Genres g ON b.Жанр = g.genre_id;\r\n";
+                string query = "SELECT NB.book_id AS 'book_id', NB.Название, NB.ISBN, NB.[Дата публикации], PH.Издательство, G.Жанр, STRING_AGG(A.Имя + ' ' + A.Фамилия + ' ' + A.Отчество, ', ') AS 'Авторы' FROM NewBooks NB LEFT JOIN Authors_Books AB ON NB.book_id = AB.id_book LEFT JOIN Authors A ON AB.id_author = A.author_id LEFT JOIN publishhouses PH ON NB.Издательство = PH.publishhouse_id LEFT JOIN genres G ON NB.Жанр = G.genre_id LEFT JOIN GivenBooks GB ON NB.book_id = GB.book_id WHERE LOWER(NB.Название) LIKE LOWER('%' + @query + '%') OR LOWER(NB.ISBN) LIKE LOWER('%' + @query + '%') OR LOWER(NB.[Дата публикации]) LIKE LOWER('%' + @query + '%') OR LOWER(PH.Издательство) LIKE LOWER('%' + @query + '%') OR LOWER(G.Жанр) LIKE LOWER('%' + @query + '%') OR LOWER(A.Имя) LIKE LOWER('%' + @query + '%') OR LOWER(A.Фамилия) LIKE LOWER('%' + @query + '%') OR LOWER(A.Отчество) LIKE LOWER('%' + @query + '%') GROUP BY NB.Название, NB.ISBN, NB.[Дата публикации], PH.Издательство, G.Жанр, NB.book_id";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@query", searchquery);
+
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                DataTable dataTable = new DataTable();
+                adapter.Fill(dataTable);
+                dataGridView1.DataSource = dataTable;
+                dataGridView1.Columns["book_id"].Visible = false;
+
+            }
+        }
+
+        private void resetbutton_Click(object sender, EventArgs e)
+        {
+            showrecords();
+            searchTextBox.Text = "";
         }
     }
 }

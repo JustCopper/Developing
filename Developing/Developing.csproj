@@ -10,11 +10,22 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.11" />
+    <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
+    <PackageReference Include="Xceed.Words.NET" Version="3.0.23523.1209" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="PHReport.cs" />
+    <Reference Include="Microsoft.Vbe.Interop">
+      <HintPath>..\..\..\..\..\..\Windows\assembly\GAC_MSIL\Microsoft.Vbe.Interop\15.0.0.0__71e9bce111e9429c\Microsoft.Vbe.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="office">
+      <HintPath>..\..\..\..\..\..\Windows\assembly\GAC_MSIL\office\15.0.0.0__71e9bce111e9429c\OFFICE.DLL</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="NotReturned.cs" />
     <Compile Update="Readers.cs">
       <SubType>Form</SubType>
     </Compile>

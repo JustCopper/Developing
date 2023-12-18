@@ -10,14 +10,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Text;
-using Microsoft.Office.Interop.Word;
-using DataTable = System.Data.DataTable;
 
 namespace Developing
 {
-    public partial class FavorGenres : Form
+    public partial class NotReturned : Form
     {
-        public FavorGenres()
+        public NotReturned()
         {
             InitializeComponent();
         }
@@ -27,10 +25,10 @@ namespace Developing
             using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
             {
                 connection.Open();
-                string query = "SELECT g.Жанр, COUNT(*) as [Книг взяли], \r\n    CAST(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM GivenBooks gb) AS INT) as [Процент]\r\nFROM GivenBooks gb\r\nJOIN NewBooks b ON gb.book_id = b.book_id\r\nJOIN Genres g ON b.Жанр = g.genre_id\r\nWHERE gb.given_date BETWEEN CONVERT(date, @fdate, 104) AND CONVERT(date, @sdate, 104)\r\nGROUP BY g.Жанр\r\nORDER BY [Книг взяли] DESC;\r\n";
+                string query = "SELECT \r\n GB.p_id,CONCAT(S.Имя, ' ', S.Фамилия, ' ', S.Отчество) AS Читатель, \r\n NB.Название as 'Книга', \r\n CONVERT(VARCHAR, GB.given_date, 104) as [Дата выдачи], \r\n CONVERT(VARCHAR, GB.return_date, 104) as [Дата возврата], \r\n DATEDIFF(day, GB.return_date, GETDATE()) AS [Просрочено дней]\r\nFROM \r\n GivenBooks GB\r\nJOIN \r\n NewBooks NB ON GB.book_id = NB.book_id\r\nJOIN \r\n Staff S ON GB.staff_id = S.staff_id\r\nWHERE \r\n ISDATE(GB.actual_return_date) = 0 AND \r\n GB.return_date < GETDATE() AND \r\n GB.return_date BETWEEN @fdate AND @sdate\r\nORDER BY [Просрочено дней] DESC";
                 SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@fdate", dateTimePicker1.Text);
-                command.Parameters.AddWithValue("@sdate", dateTimePicker2.Text);
+                command.Parameters.Add("@fdate", SqlDbType.Date).Value = dateTimePicker1.Text;
+                command.Parameters.Add("@sdate", SqlDbType.Date).Value = dateTimePicker2.Text;
                 //var result = command.ExecuteReader();
                 using (SqlDataAdapter adapter = new SqlDataAdapter(command))
                 {
@@ -40,6 +38,8 @@ namespace Developing
                     // Привяжите результаты к DataGridView
                     dataGridView1.DataSource = dataTable;
                 }
+                dataGridView1.Columns["p_id"].Visible = false;
+
             }
         }
 
@@ -66,10 +66,16 @@ namespace Developing
                 sb.AppendLine(string.Join(",", cells.Select(cell => "\"" + cell.Value + "\"").ToArray()));
             }
 
-            using (StreamWriter sw = new StreamWriter("Популярные Жанры.csv", false, Encoding.UTF8))
+            using (StreamWriter sw = new StreamWriter("Актуальные издательства.csv", false, Encoding.UTF8))
             {
                 sw.Write(sb.ToString());
             }
+
+        }
+
+        private void ApplyParameters_Click(object sender, EventArgs e)
+        {
+            LoadForm();
 
         }
         private void ExportWord(DataTable dataTable)
@@ -82,7 +88,7 @@ namespace Developing
                 var titles = word.Application.ActiveDocument.Paragraphs.Add();
                 var titlesRanges = titles.Range;
                 //Microsoft.Office.Interop.Word.Range range = word.Application.ActiveDocument.Range(titlesRanges, titlesRanges);
-                titlesRanges.Text = "Название отчета: Актуальные жанры книг";
+                titlesRanges.Text = "Название отчета: Читатели которые не вернули книги вовремя";
                 titlesRanges.ParagraphFormat.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
 
                 titlesRanges.InsertParagraphAfter();
@@ -97,22 +103,18 @@ namespace Developing
                 //range = word.Application.ActiveDocument.Range(0, 0);
                 var titles2 = word.Application.ActiveDocument.Paragraphs.Add();
                 var dateTitle = titles2.Range;
-                dateTitle.Text = "Дата формирования отчета: " + DateTime.Now.ToString("dd/MM/yyyy");
+                dateTitle.Text = "Дата формирования отчета: " + DateTime.Now.ToString("dd.MM.yyyy");
                 dateTitle.ParagraphFormat.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                //dateTitle.ParagraphFormat.SpaceAfter = 20;
+
                 dateTitle.InsertParagraphAfter();
 
                 var myTable = word.Application.ActiveDocument.Paragraphs.Add();
                 var myTableRange = myTable.Range;
-                myTableRange.ParagraphFormat.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                //myTableRange.ParagraphFormat.SpaceBefore = 20; // Замените 10 на желаемую величину отступа
-
 
                 //var test = word.Application.ActiveDocument.Range(1, 1);
                 Microsoft.Office.Interop.Word.Table table = word.Application.ActiveDocument.Tables.Add(myTableRange, dataTable.Rows.Count + 1, dataTable.Columns.Count, Type.Missing, Type.Missing);
                 table.Borders.OutsideLineStyle = Microsoft.Office.Interop.Word.WdLineStyle.wdLineStyleSingle;
                 table.Borders.InsideLineStyle = Microsoft.Office.Interop.Word.WdLineStyle.wdLineStyleSingle;
-
 
                 for (int i = 0; i < dataTable.Columns.Count; i++)
                 {
@@ -155,21 +157,16 @@ namespace Developing
             }
         }
 
-        private void ApplyParameters_Click(object sender, EventArgs e)
-        {
-            LoadForm();
-
-        }
-
-        private void ExportButton_Click(object sender, EventArgs e)
+        private void exportButton_Click(object sender, EventArgs e)
         {
             using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\George\\source\\repos\\Developing\\Developing\\Database1.mdf;Integrated Security=True"))
             {
                 connection.Open();
-                string query = "SELECT g.Жанр, COUNT(*) as [Книг взяли], \r\n    CAST(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM GivenBooks gb) AS INT) as [Доля от общего числа выдач, %]\r\nFROM GivenBooks gb\r\nJOIN NewBooks b ON gb.book_id = b.book_id\r\nJOIN Genres g ON b.Жанр = g.genre_id\r\nWHERE gb.given_date BETWEEN CONVERT(date, @fdate, 104) AND CONVERT(date, @sdate, 104)\r\nGROUP BY g.Жанр\r\nORDER BY [Книг взяли] DESC;\r\n";
+                string query = "SELECT \r\n CONCAT(S.Имя, ' ', S.Фамилия, ' ', S.Отчество) AS Читатель, \r\n NB.Название as 'Книга', \r\n CONVERT(VARCHAR, GB.given_date, 104) as [Дата выдачи], \r\n CONVERT(VARCHAR, GB.return_date, 104) as [Дата возврата], \r\n DATEDIFF(day, GB.return_date, GETDATE()) AS [Просрочено дней]\r\nFROM \r\n GivenBooks GB\r\nJOIN \r\n NewBooks NB ON GB.book_id = NB.book_id\r\nJOIN \r\n Staff S ON GB.staff_id = S.staff_id\r\nWHERE \r\n ISDATE(GB.actual_return_date) = 0 AND \r\n GB.return_date < GETDATE()\r\nORDER BY [Просрочено дней] DESC";
                 SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@fdate", dateTimePicker1.Text);
-                command.Parameters.AddWithValue("@sdate", dateTimePicker2.Text);
+
+                command.Parameters.Add("@fdate", SqlDbType.Date).Value = dateTimePicker1.Text;
+                command.Parameters.Add("@sdate", SqlDbType.Date).Value = dateTimePicker2.Text;
                 //var result = command.ExecuteReader();
                 using (SqlDataAdapter adapter = new SqlDataAdapter(command))
                 {
